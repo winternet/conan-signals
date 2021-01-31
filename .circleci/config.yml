@@ -1,0 +1,43 @@
+
+version: 2
+.conan-steps: &conan-steps
+  steps:
+    - checkout
+    - run:
+        name: Update Conan package
+        command: |
+          chmod +x .circleci/install.sh
+          .circleci/install.sh
+    - run:
+        name: Build recipe
+        command: |
+          chmod +x .circleci/run.sh
+          .circleci/run.sh
+
+jobs:
+
+  gcc-10:
+      docker:
+        - image: conanio/gcc10
+      environment:
+        - CONAN_GCC_VERSIONS: "10"
+      <<: *conan-steps
+
+  gcc-9:
+      docker:
+        - image: conanio/gcc9
+      environment:
+        - CONAN_GCC_VERSIONS: "9"
+      <<: *conan-steps
+
+
+workflows:
+  version: 2
+  build_and_test:
+    jobs:
+      - gcc-10:
+          context: conan-context
+      - gcc-9:
+          context: conan-context
+
+
